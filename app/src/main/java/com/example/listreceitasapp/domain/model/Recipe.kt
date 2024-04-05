@@ -5,4 +5,5 @@ typealias RecipeDomain = Recipe
 class Recipe (
     val id : Int = 0,
     var name : String,
+    var prepareTime : String,
 )

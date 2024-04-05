@@ -7,13 +7,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.listreceitasapp.R
 import com.example.listreceitasapp.databinding.FragmentRecipeBinding
 import com.example.listreceitasapp.presentation.dialog.DialogEditTextFragment
 import com.example.listreceitasapp.presentation.recipe.adapter.RecipeAdapter
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import presentation.recipe.RecipeFragmentDirections
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -48,7 +55,13 @@ class RecipeFragment : Fragment() {
         setFragmentResultListener(DialogEditTextFragment.FRAGMENT_RESULT) {  requestKey, bundle ->
             val nomeRecipe = bundle.getString(DialogEditTextFragment.EDIT_TEXT_VALUE) ?: ""
             viewModel.insert(nomeRecipe)
+        }
 
+        adapter.click = { recipeItem ->
+            val action = RecipeFragmentDirections.actionFirstFragmentToSecondFragment(
+                recipeItem.id,
+            )
+            findNavController().navigate(action)
         }
     }
 
@@ -81,7 +94,7 @@ class RecipeFragment : Fragment() {
 
                 is RecipeState.Success -> {
                     binding.pbLoading.isVisible = false
-                    adapter.submitList(state.recipe)
+                    adapter.submitList(state.recipes)
                 }
             }
 
@@ -92,8 +105,16 @@ class RecipeFragment : Fragment() {
         DialogEditTextFragment.show(
             title = getString(R.string.title_new_recipe),
             placeholder = getString(R.string.label_name_recipe),
+            valueEditText = "",
             fragmentManager = parentFragmentManager,
-
         )
     }
+
+        private fun <T> Flow<T>.observe(owner: LifecycleOwner, observe: (T) -> Unit) {
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    this@observe.collect(observe)
+                }
+            }
+        }
 }

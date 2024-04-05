@@ -9,5 +9,6 @@ typealias RecipeEntity = Recipe
 @Entity
 data class Recipe (
     @PrimaryKey(true) val id : Int,
-    @ColumnInfo("name") val name : String
+    @ColumnInfo(name = "name") val name : String,
+    @ColumnInfo(name = "prepareTime") val prepareTime: String,
 )

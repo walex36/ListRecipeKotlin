@@ -18,12 +18,14 @@ class DialogEditTextFragment : DialogFragment() {
             ?: throw IllegalArgumentException("Ops, passe o titulo")
         val placeHolderText = arguments?.getString(PLACE_HOLDER)
             ?: throw IllegalArgumentException("Ops, passe o place holder")
+        val editText: String? = arguments?.getString(EDIT_TEXT_VALUE)
 
         return activity?.let {
             binding = FragmentDialogEditTextBinding.inflate(
                 requireActivity().layoutInflater
             ).apply {
                 edEditText.hint = placeHolderText
+                edEditText.setText(editText)
                 tvTitle.text = titleText
             }
 
@@ -50,13 +52,15 @@ class DialogEditTextFragment : DialogFragment() {
         fun show(
             title: String,
             placeholder: String,
+            valueEditText: String,
             fragmentManager: FragmentManager,
             tag: String = DialogEditTextFragment::class.java.simpleName.toString(),
         ) {
             DialogEditTextFragment().apply {
                 arguments = bundleOf(
                     TITLE_TEXT to title,
-                    PLACE_HOLDER to placeholder
+                    PLACE_HOLDER to placeholder,
+                    EDIT_TEXT_VALUE to valueEditText,
                 )
             }.show(fragmentManager, tag)
         }
